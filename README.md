@@ -11,6 +11,7 @@ Built on two years of transactions from an online gift and homeware retailer (5,
 | **Result** | 4 segments. **Loyal big spenders: 19% of customers, 72% of revenue.** K-means also split the RFM "Silver" tier into new customers and drifting regulars, who need opposite messages. |
 | **Validated** | Segments built on older data predicted the next six months: the top segment spent **19 times** as much as lapsed buyers |
 | **Output** | [`reports/segments.csv`](reports/segments.csv): every customer's segment, ready for an email platform |
+| **SQL** | Cleaning and RFM rebuilt in SQL with DuckDB ([`sql/`](sql)), matching the pandas results exactly, plus segment value and cohort retention queries |
 
 ![Segment shares](figures/segments_share.png)
 
@@ -163,6 +164,26 @@ Every customer's segment, RFM values and tier are in [`reports/segments.csv`](re
 4. **Refresh monthly.** Customers move between segments. A drifting regular who orders again should leave the win-back list straight away.
 5. **Measure with a holdout.** Keep a random 10% of each segment out of its campaign and compare their spend after three months. That is the only way to know a campaign caused the change.
 
+## 9. The pipeline in SQL (DuckDB)
+
+In a company the transactions would sit in a database, not an Excel file, so the segmentation should not depend on Python. [`notebooks/04_sql_duckdb.ipynb`](notebooks/04_sql_duckdb.ipynb) rebuilds the cleaning and RFM steps in SQL, checks them against the pandas versions, and answers two new questions. [DuckDB](https://duckdb.org) runs the queries inside Python, with no database server to install, using standard SQL.
+
+| Query | What it does | SQL used |
+|---|---|---|
+| [`01_clean_transactions.sql`](sql/01_clean_transactions.sql) | The Step 3 cleaning rules in one query | `SELECT DISTINCT`, `WHERE` filters, `regexp_matches` |
+| [`02_rfm_scores.sql`](sql/02_rfm_scores.sql) | Recency, frequency, monetary and 1 to 5 scores per customer | CTEs, `GROUP BY`, `NTILE(5) OVER (...)` |
+| [`03_segment_summary.sql`](sql/03_segment_summary.sql) | What each segment is worth, overall and in the last 90 days | `JOIN`, window share of total, `FILTER (WHERE ...)` |
+| [`04_cohort_retention.sql`](sql/04_cohort_retention.sql) | Share of each month's new customers who order again | CTEs, `date_trunc`, `date_diff`, `PARTITION BY` |
+
+**Checked against pandas.** The SQL cleaning gives exactly the same 776,577 purchase lines, 5,852 customers and £17,068,568 of revenue. Recency, frequency and monetary match for every customer. The 1 to 5 scores differ for about 1% of customers because `NTILE` makes five exactly equal groups and splits tied values at the edges, while `pd.qcut` keeps ties together; the tier changes for 12 of 5,852 customers.
+
+**Two new findings**
+
+1. **New and promising customers matter more than their total suggests:** about 6% of all revenue, but about 17% of the revenue in the last 90 days.
+2. **New customers are lost quickly.** Only about 1 in 5 orders again in the month after their first order, settling around 10 to 15% after six months. The welcome series for new customers should start straight after the first order.
+
+![Cohort retention](figures/cohort_retention.png)
+
 ## Limitations
 
 - **Only purchase history.** RFM sees what customers bought, not why. There is no data on interests, household or business type, channel or browsing, which would sharpen the segments. In a real role I would add those, especially whether a customer is a shop or an individual.
@@ -187,7 +208,7 @@ pip install -r requirements.txt
 jupyter notebook
 ```
 
-Run the notebooks in order. The first downloads the data (about 45 MB) from UCI into `data/raw/` if needed; reading the Excel file takes about a minute.
+Run the notebooks in order. The first downloads the data (about 45 MB) from UCI into `data/raw/` if needed; reading the Excel file takes about a minute. Notebook 04 needs notebooks 01 to 03 to have run, and the `.sql` files can also be run on their own in the [DuckDB command line](https://duckdb.org/docs/installation/).
 
 ## Project structure
 
@@ -196,6 +217,8 @@ notebooks/
   01_clean.ipynb     load, data dictionary, cleaning rules, revenue
   02_rfm.ipynb       RFM scores and tiers by hand (the baseline)
   03_kmeans.ipynb    transformation, choosing k, clusters, comparison with tiers, future test, segment names
+  04_sql_duckdb.ipynb  cleaning and RFM in SQL, checked against pandas; segment value; cohort retention
+sql/                 the SQL queries, one file per question
 figures/             charts used in this README
 reports/
   segments.csv         every customer's RFM values, tier and segment
