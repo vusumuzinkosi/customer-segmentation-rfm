@@ -76,3 +76,30 @@ Each is scored 1 to 5 by quintile (5 = best) and the three scores are added (3 t
 ![RFM tiers](figures/rfm_tiers.png)
 
 **What I expected before clustering:** a small high-value group carrying most of the revenue; a large group of long-gone one-time buyers; and, hidden inside Silver, two groups that need opposite messages: **new customers** (recent, few orders) and **regulars drifting away** (several orders, not recent). If K-means separates those two, it is worth its extra complexity.
+
+## 5. K-means clustering
+
+**Preparation.** Recency, frequency and monetary are all heavily skewed (the biggest customer spent £581,000; the median £856), and they are in different units. K-means works on distances, so without care the few giant customers would dominate. Each value is **log-transformed** (`log1p`) and **standardised** (mean 0, standard deviation 1).
+
+![Transformation](figures/rfm_transform.png)
+
+**Choosing k** (number of clusters), for k = 2 to 10:
+
+| k | 2 | 3 | **4** | 5 | 6 |
+|---|---|---|---|---|---|
+| Silhouette | 0.438 | 0.347 | **0.365** | 0.342 | 0.336 |
+
+![Choosing k](figures/choosing_k.png)
+
+The silhouette score is highest at k = 2, but "good customers and the rest" adds nothing the RFM tiers do not already say. **k = 4 is a local peak**, the elbow bends around 4 to 5, and four is a number of campaigns a marketing team can run. Statistics narrows the choice; the business use makes it.
+
+**The four clusters:**
+
+| Cluster | Customers | Median days since last order | Median orders | Median spend | Share of revenue |
+|---|---|---|---|---|---|
+| A | 1,110 (19%) | 15 | 13 | £5,118 | 72% |
+| B | 1,468 (25%) | 157 | 5 | £1,580 | 18% |
+| C | 1,220 (21%) | 23 | 3 | £708 | 6% |
+| D | 2,054 (35%) | 398 | 1 | £291 | 4% |
+
+![Clusters](figures/clusters_scatter.png)
