@@ -56,3 +56,23 @@ Cancellations are **removed, not subtracted**: many refer to orders placed befor
 - Sales are **strongly seasonal**, peaking in October and November before Christmas.
 - Revenue is **very concentrated**: the top 10% of customers bring in 64% of it.
 - Almost a quarter of all lines have **no Customer ID**. That revenue is real but cannot be segmented; in a real project I would ask why (for example, guest checkout).
+
+## 4. Baseline: RFM by hand
+
+For every customer, measured on 10 December 2011:
+
+- **Recency:** days since the last order
+- **Frequency:** number of orders
+- **Monetary:** total spend
+
+Each is scored 1 to 5 by quintile (5 = best) and the three scores are added (3 to 15) into tiers:
+
+| Tier | RFM score | Customers | Median days since last order | Median orders | Median spend | Share of revenue |
+|---|---|---|---|---|---|---|
+| Gold | 12 to 15 | 1,711 (29%) | 18 | 10 | £3,628 | **80%** |
+| Silver | 7 to 11 | 2,378 (41%) | 96 | 3 | £852 | 17% |
+| Bronze | 3 to 6 | 1,763 (30%) | 418 | 1 | £240 | 3% |
+
+![RFM tiers](figures/rfm_tiers.png)
+
+**What I expected before clustering:** a small high-value group carrying most of the revenue; a large group of long-gone one-time buyers; and, hidden inside Silver, two groups that need opposite messages: **new customers** (recent, few orders) and **regulars drifting away** (several orders, not recent). If K-means separates those two, it is worth its extra complexity.
