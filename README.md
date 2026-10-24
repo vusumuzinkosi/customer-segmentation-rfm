@@ -33,3 +33,26 @@
 **Currency.** Amounts are in pounds. I keep them in pounds rather than inventing an exchange rate; the segments and campaigns translate directly to a rand-based business.
 
 **South African data in a real role:** the retailer's own e-commerce order history and loyalty programme data, processed under POPIA. Customer-level retail data is rarely public in South Africa, which is why an international dataset is used here.
+
+## 3. Cleaning
+
+Every rule is applied in order and counted:
+
+| Rule | Lines removed | Lines left |
+|---|---|---|
+| Raw data | | 1,067,371 |
+| Exact duplicate lines | 34,335 | 1,033,036 |
+| No Customer ID (cannot be linked to a customer) | 235,151 | 797,885 |
+| Cancellations (invoice starts with C) | 18,390 | 779,495 |
+| Non-product lines (postage, fees, manual entries) | 2,858 | 776,637 |
+| Zero or negative quantity or price | 60 | **776,577** |
+
+Cancellations are **removed, not subtracted**: many refer to orders placed before the data starts, and subtracting them would leave some customers with negative spend. Revenue per line is `Quantity x Price`.
+
+**Result:** 5,852 customers, 36,594 orders, £17.1 million in revenue.
+
+![Monthly revenue](figures/monthly_revenue.png)
+
+- Sales are **strongly seasonal**, peaking in October and November before Christmas.
+- Revenue is **very concentrated**: the top 10% of customers bring in 64% of it.
+- Almost a quarter of all lines have **no Customer ID**. That revenue is real but cannot be segmented; in a real project I would ask why (for example, guest checkout).
