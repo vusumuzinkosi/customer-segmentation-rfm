@@ -1,5 +1,19 @@
 # Customer Segmentation: RFM and K-means for Targeted Campaigns
 
+**Four customer segments that tell marketing where to spend, who to win back, who to grow and who to stop chasing.**
+
+Built on two years of transactions from an online gift and homeware retailer (5,852 customers, £17 million), framed for a South African online retailer.
+
+| | |
+|---|---|
+| **Question** | Everyone gets the same email. Which natural customer groups exist, and what should each one hear? |
+| **Method** | RFM scores by hand as a baseline, then K-means on log-scaled RFM, k chosen by silhouette and business use |
+| **Result** | 4 segments. **Loyal big spenders: 19% of customers, 72% of revenue.** K-means also split the RFM "Silver" tier into new customers and drifting regulars, who need opposite messages. |
+| **Validated** | Segments built on older data predicted the next six months: the top segment spent **19 times** as much as lapsed buyers |
+| **Output** | [`reports/segments.csv`](reports/segments.csv): every customer's segment, ready for an email platform |
+
+![Segment shares](figures/segments_share.png)
+
 ## 1. Business problem
 
 **Client and context.** The imagined client is a South African online retailer of gifts and homeware that sells to individual shoppers and to small shops (gift stores, decor boutiques). Today marketing sends **everyone the same email**: the same products, the same discount, the same timing.
@@ -140,3 +154,53 @@ The top segment's customers spent about **19 times** as much in the following si
 | **Lapsed one-time buyers** | 2,054 (35%) | 4% | One order, over a year ago, median £291 | **Low-cost reactivation only.** Include in the October seasonal campaign; drop from frequent emails to protect sender reputation. |
 
 Every customer's segment, RFM values and tier are in [`reports/segments.csv`](reports/segments.csv), ready to load into an email platform. The summary is in [`reports/segment_summary.csv`](reports/segment_summary.csv).
+
+## 8. Recommendation
+
+1. **Stop the single email.** Load `reports/segments.csv` into the email platform and run four campaigns.
+2. **Put the effort into the two middle segments.** Loyal big spenders mostly need not to be annoyed; lapsed buyers are cheap to keep in a seasonal campaign. The real gains are in turning **new and promising** customers into regulars, and catching **drifting regulars** before they lapse.
+3. **Time it with the season.** Run the win-back campaign in August and September, so drifting regulars are back before the October and November peak.
+4. **Refresh monthly.** Customers move between segments. A drifting regular who orders again should leave the win-back list straight away.
+5. **Measure with a holdout.** Keep a random 10% of each segment out of its campaign and compare their spend after three months. That is the only way to know a campaign caused the change.
+
+## Limitations
+
+- **Only purchase history.** RFM sees what customers bought, not why. There is no data on interests, household or business type, channel or browsing, which would sharpen the segments. In a real role I would add those, especially whether a customer is a shop or an individual.
+- **Almost a quarter of lines are anonymous** and could not be segmented.
+- **K-means assumes round, similar-sized clusters** and will always produce k groups, even if the data has no natural groups. The agreement with RFM tiers and the six-month test are the evidence that these groups are real.
+- **UK data from 2009 to 2011.** The method transfers; the exact segment sizes and thresholds would not.
+- **Pounds, not rand.** No conversion is made, because the decisions depend on relative value, not the currency.
+
+## Next steps
+
+- Add product categories (what each segment buys) to tailor the content of each campaign, not only its tone.
+- Estimate customer lifetime value per segment to set a budget for each campaign.
+- Test other clustering methods (Gaussian mixtures) to see if the segment boundaries are stable.
+
+## How to run
+
+```bash
+git clone https://github.com/vusumuzinkosi/customer-segmentation-rfm.git
+cd customer-segmentation-rfm
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+jupyter notebook
+```
+
+Run the notebooks in order. The first downloads the data (about 45 MB) from UCI into `data/raw/` if needed; reading the Excel file takes about a minute.
+
+## Project structure
+
+```
+notebooks/
+  01_clean.ipynb     load, data dictionary, cleaning rules, revenue
+  02_rfm.ipynb       RFM scores and tiers by hand (the baseline)
+  03_kmeans.ipynb    transformation, choosing k, clusters, comparison with tiers, future test, segment names
+figures/             charts used in this README
+reports/
+  segments.csv         every customer's RFM values, tier and segment
+  segment_summary.csv  one row per segment
+data/                raw and processed data (not committed)
+```
+
+*Author: Vusumuzi Nkosi ([GitHub](https://github.com/vusumuzinkosi))*
