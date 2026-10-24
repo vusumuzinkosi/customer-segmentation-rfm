@@ -1,0 +1,5 @@
+segment,customers,recency_median,frequency_median,monetary_median,revenue,share_of_customers,share_of_revenue
+Loyal big spenders,1110,15.0,13.0,5117.7,12217497.4,19.0,71.6
+Drifting regulars,1468,157.0,5.0,1580.4,3150628.2,25.1,18.5
+New and promising,1220,23.0,3.0,707.7,1002636.2,20.8,5.9
+Lapsed one-time buyers,2054,398.0,1.0,291.4,697806.2,35.1,4.1

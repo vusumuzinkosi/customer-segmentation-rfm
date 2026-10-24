@@ -127,3 +127,16 @@ K-means rediscovered the obvious groups on its own (A is Gold, D is Bronze), whi
 | One order, long ago | 2,090 | 28% | £210 |
 
 The top segment's customers spent about **19 times** as much in the following six months as the lapsed segment's. The segmentation ranks future value, not just past behaviour, which is what marketing needs to decide where to spend.
+
+## 7. Segments and campaigns
+
+![Segment shares](figures/segments_share.png)
+
+| Segment | Customers | Share of revenue | Who they are | Campaign |
+|---|---|---|---|---|
+| **Loyal big spenders** | 1,110 (19%) | 72% | Ordered in the last few weeks, 13 orders, median spend £5,118 | **Protect and reward.** Early access to new collections, a named account contact, free delivery on bulk orders. No discounts: they already buy at full price. |
+| **Drifting regulars** | 1,468 (25%) | 18% | 5 orders, but none for about five months | **Win back now.** A personal "we miss you" email with their past favourite products and a time-limited offer. The segment most at risk, and still worth saving. |
+| **New and promising** | 1,220 (21%) | 6% | Ordered in the last few weeks, but only 3 orders and small baskets | **Grow the habit.** A welcome series with best-sellers and a small incentive on the next order. |
+| **Lapsed one-time buyers** | 2,054 (35%) | 4% | One order, over a year ago, median £291 | **Low-cost reactivation only.** Include in the October seasonal campaign; drop from frequent emails to protect sender reputation. |
+
+Every customer's segment, RFM values and tier are in [`reports/segments.csv`](reports/segments.csv), ready to load into an email platform. The summary is in [`reports/segment_summary.csv`](reports/segment_summary.csv).
