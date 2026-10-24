@@ -103,3 +103,27 @@ The silhouette score is highest at k = 2, but "good customers and the rest" adds
 | D | 2,054 (35%) | 398 | 1 | £291 | 4% |
 
 ![Clusters](figures/clusters_scatter.png)
+
+## 6. Evaluation
+
+**Agreement with the RFM tiers:**
+
+| Cluster | Gold | Silver | Bronze |
+|---|---|---|---|
+| A: recent, frequent, high spend | **100%** | 0% | 0% |
+| B: several orders, not recent | 24% | **76%** | 0% |
+| C: recent, few orders | 21% | **75%** | 4% |
+| D: one order, long ago | 0% | 17% | **83%** |
+
+K-means rediscovered the obvious groups on its own (A is Gold, D is Bronze), which suggests the clusters are real. Where they disagree is where the value is: **B and C are both mostly Silver**, because their RFM totals are similar, but one is drifting away and the other has just arrived. The tiers lump them together; the clusters split them, as hoped in Step 4.
+
+**Do the segments predict the future?** I rebuilt the whole pipeline on data up to 9 June 2011 only, then measured what each segment did in the **next six months**, which the clustering never saw:
+
+| Segment found on past data | Customers | Bought again | Average spend, next 6 months |
+|---|---|---|---|
+| Recent, frequent, high spend | 722 | **93%** | **£4,075** |
+| Recent, few orders | 633 | 70% | £553 |
+| Several orders, not recent | 1,499 | 57% | £529 |
+| One order, long ago | 2,090 | 28% | £210 |
+
+The top segment's customers spent about **19 times** as much in the following six months as the lapsed segment's. The segmentation ranks future value, not just past behaviour, which is what marketing needs to decide where to spend.
